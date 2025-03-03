@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InterviewAce</title>
-    <link rel="stylesheet" href="Interview.css">
+    <link rel="stylesheet" href="{% static 'home/Interview.css' %}">
 </head>
 <body>
     <div class="header">
@@ -18,7 +19,7 @@
         <h1>Boost Your Skills</h1>
         <p>Welcome to InterviewAce, your ultimate destination to enhance your interview skills and land your dream job. Our platform offers a unique blend of mock interviews, AI-based feedback, and comprehensive reports to ensure you are fully prepared for success.</p>
         <div class="image-container">
-            <img src="interview-panel.webp" alt="Typing on a laptop">
+            <img src="{%static 'home/img1.webp'%}" alt="Typing on a laptop">
         </div>
     </div>
 </body>
