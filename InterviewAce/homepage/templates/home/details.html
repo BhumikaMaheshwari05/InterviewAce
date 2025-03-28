@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Scheduling</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(-45deg, #f08a8a, #ffdada, #f1a3a3, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      transition: background 0.5s ease;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(-45deg, #28394a, #213141, #06134a, #16a085);
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      max-width: 800px;
+      width: 100%;
+      backdrop-filter: blur(10px);
+      transition: background 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    body.dark-mode .container {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 28px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    body.dark-mode h1 {
+      color: #fff;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .upload-section {
+      margin-bottom: 30px;
+    }
+
+    .upload-section label {
+      display: block;
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    body.dark-mode .upload-section label {
+      color: #ccc;
+    }
+
+    .upload-section input[type="file"] {
+      display: none;
+    }
+
+    .upload-section .custom-file-upload {
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      color: #777;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body.dark-mode .upload-section .custom-file-upload {
+      border-color: #555;
+      color: #ccc;
+    }
+
+    .upload-section .custom-file-upload:hover {
+      border-color: #007bff;
+      background: rgba(0, 123, 255, 0.1);
+    }
+
+    .upload-section .file-name {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #007bff;
+      word-break: break-word;
+      animation: fadeIn 0.5s ease;
+    }
+
+    body.dark-mode .upload-section .file-name {
+      color: #1abc9c;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 5px;
+      background: #007bff;
+      border-radius: 5px;
+      margin-top: 10px;
+      transition: width 2s ease;
+    }
+
+    .date-picker {
+      margin-bottom: 30px;
+    }
+
+    .date-picker label {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    body.dark-mode .date-picker label {
+      color: #ccc;
+    }
+
+    .date-picker input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s ease;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    body.dark-mode .date-picker input[type="date"] {
+      background: #333;
+      border-color: #555;
+      color: #fff;
+    }
+
+    .time-slots {
+      display: none;
+      margin-bottom: 30px;
+    }
+
+    .time-slots h2 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    body.dark-mode .time-slots h2 {
+      color: #fff;
+    }
+
+    .time-slot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+      background: #fff;
+    }
+
+    body.dark-mode .time-slot {
+      background: #333;
+      border-color: #555;
+    }
+
+    .time-slot:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .time-slot button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .time-slot button.booked {
+      background: #28a745;
+      cursor: not-allowed;
+    }
+
+    .time-slot button:hover:not(.booked) {
+      background: #0056b3;
+    }
+
+    .dark-mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s ease;
+    }
+
+    .dark-mode-toggle:hover {
+      background: #0056b3;
+    }
+
+    .checkmark {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background: #28a745;
+      border-radius: 50%;
+      margin-left: 10px;
+      animation: checkmark 0.5s ease;
+    }
+
+    @keyframes checkmark {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-content.dark-mode {
+      background: #333;
+      color: white;
+    }
+
+    .modal button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal button:hover {
+      background: #0056b3;
+    }
+
+    #countdownTimer {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #007bff;
+    }
+
+    body.dark-mode #countdownTimer {
+      color: #1abc9c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Schedule Your Interview</h1>
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+    <div class="upload-section">
+      <label>Upload Your CV or Resume (Only One)</label>
+      <div class="custom-file-upload" onclick="document.getElementById('fileInput').click()">
+        <span id="uploadText">Click to Upload CV or Resume</span>
+        <div id="fileNameDisplay" class="file-name"></div>
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf,.doc,.docx" onchange="handleFileUpload(event)">
+      <div id="fileError" class="error-message" style="color: red; display: none;">Please upload your CV/Resume to proceed.</div>
+    </div>
+    <div class="date-picker">
+      <label for="interviewDate">Select Interview Date</label>
+      <input type="date" id="interviewDate" onchange="showTimeSlots()" disabled>
+    </div>
+    <div class="time-slots" id="timeSlotsSection">
+      <h2>Available Time Slots</h2>
+      <div id="timeSlotsList"></div>
+    </div>
+  </div>
+
+ <!-- Modal for Booking Confirmation -->
+<div id="bookingModal" class="modal">
+    <div class="modal-content">
+      <h2>Booking Confirmed!</h2>
+      <div id="modalSlotTime"></div>
+      <p id="countdownTimer"></p>
+      <button onclick="closeModal()">Close</button>
+    </div>
+  </div>
+  
+  <script>
+     let isFileUploaded = false;
+    let bookedSlot = null;
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      const fileNameDisplay = document.getElementById('fileNameDisplay');
+      const uploadText = document.getElementById('uploadText');
+      const progressBar = document.getElementById('progressBar');
+      const dateInput = document.getElementById('interviewDate');
+      const fileError = document.getElementById('fileError');
+
+      if (file) {
+        isFileUploaded = true;
+        fileNameDisplay.textContent = `Uploaded: ${file.name}`;
+        uploadText.style.display = 'none';
+        progressBar.style.width = '100%';
+        fileError.style.display = 'none';
+        dateInput.disabled = false;
+        setTimeout(() => {
+          progressBar.style.width = '0';
+        }, 2000);
+      } else {
+        isFileUploaded = false;
+        dateInput.disabled = true;
+      }
+    }
+
+    // Function to show time slots based on selected date
+    function showTimeSlots() {
+      if (!isFileUploaded) {
+        alert('Please upload your CV/Resume first.');
+        return;
+      }
+
+      const dateInput = document.getElementById('interviewDate');
+      const timeSlotsSection = document.getElementById('timeSlotsSection');
+      const timeSlotsList = document.getElementById('timeSlotsList');
+
+      if (dateInput.value) {
+        timeSlotsSection.style.display = 'block';
+        timeSlotsList.innerHTML = '';
+
+        // Generate time slots from 9:00 AM to 5:00 PM with 30-minute intervals
+        const startTime = 9 * 60; // 9:00 AM in minutes
+        const endTime = 17 * 60; // 5:00 PM in minutes
+        const interval = 30; // 30 minutes
+
+        for (let time = startTime; time < endTime; time += interval) {
+          const startHours = Math.floor(time / 60);
+          const startMinutes = time % 60;
+          const endTimeValue = time + interval;
+          const endHours = Math.floor(endTimeValue / 60);
+          const endMinutes = endTimeValue % 60;
+
+          // Convert to AM/PM format
+          const startTimeString = formatTimeAMPM(startHours, startMinutes);
+          const endTimeString = formatTimeAMPM(endHours, endMinutes);
+
+          const timeSlot = document.createElement('div');
+          timeSlot.className = 'time-slot';
+          timeSlot.innerHTML = `
+            <span>${startTimeString} - ${endTimeString}</span>
+            <button onclick="bookSlot(this)">Book Now</button>
+          `;
+          timeSlotsList.appendChild(timeSlot);
+        }
+      } else {
+        timeSlotsSection.style.display = 'none';
+      }
+    }
+
+    function formatTimeAMPM(hours, minutes) {
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+      const formattedMinutes = String(minutes).padStart(2, '0');
+      return `${formattedHours}:${formattedMinutes} ${ampm}`;
+    }
+
+    // Function to book a time slot
+    function bookSlot(button) {
+  if (!isFileUploaded) {
+    alert('Please upload your CV/Resume first.');
+    return;
+  }
+
+  if (bookedSlot) {
+    alert('You can only book one slot at a time.');
+    return;
+  }
+
+  bookedSlot = button;
+  const slotTime = button.parentElement.querySelector('span').textContent;
+  button.textContent = 'Booked';
+  button.classList.add('booked');
+  button.disabled = true;
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+  // Update modal content with the confirmation message and "Thank You"
+  document.getElementById('modalSlotTime').innerHTML = `
+    <p>Your interview is scheduled for: <strong>${slotTime}</strong></p>
+    <p>The details of the interview will be sent to your mail shortly!</p>
+    <p style="margin-top: 20px; font-size: 18px; color: #28a745;">Thank You!</p>
+  `;
+  document.getElementById('bookingModal').style.display = 'flex';
+
+  // Start countdown
+  startCountdown(slotTime);
+
+  // Add cancel button
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = 'Cancel & Reschedule';
+  cancelButton.style.cssText = 'padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; margin-left: 10px;';
+  cancelButton.onclick = cancelBooking;
+  button.parentElement.appendChild(cancelButton);
+}
+    // Function to toggle dark mode
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+   
+
+    function closeModal() {
+      document.getElementById('bookingModal').style.display = 'none';
+    }
+
+    function cancelBooking() {
+      if (bookedSlot) {
+        bookedSlot.textContent = 'Book Now';
+        bookedSlot.classList.remove('booked');
+        bookedSlot.disabled = false;
+        bookedSlot.parentElement.querySelector('button:last-child').remove();
+        bookedSlot = null;
+        document.getElementById('countdownTimer').style.display = 'none';
+        clearInterval(countdownInterval);
+      }
+    }
+
+let countdownInterval;
+
+function startCountdown(slotTime) {
+      const [startTimeString] = slotTime.split(' - ');
+      const [time, ampm] = startTimeString.split(' ');
+      const [startHour, startMinute] = time.split(':').map(Number);
+
+      // Convert to 24-hour format
+      let startHour24 = startHour;
+      if (ampm === 'PM' && startHour !== 12) {
+        startHour24 += 12;
+      }
+      if (ampm === 'AM' && startHour === 12) {
+        startHour24 = 0;
+      }
+
+      const now = new Date();
+      const interviewTime = new Date(now);
+      interviewTime.setHours(startHour24, startMinute, 0, 0);
+
+      if (interviewTime <= now) {
+        interviewTime.setDate(interviewTime.getDate() + 1);
+      }
+
+      countdownInterval = setInterval(() => {
+        const now = new Date();
+        const diff = interviewTime - now;
+
+        if (diff <= 0) {
+          clearInterval(countdownInterval);
+          document.getElementById('countdownTimer').innerHTML = 'Interview Time!';
+          return;
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('countdownTimer').style.display = 'block';
+        document.getElementById('countdownTimer').innerHTML = `Time Left: ${hours}h ${minutes}m ${seconds}s`;
+      }, 1000);
+    }
+
+
+
+</script>
+</body>
+</html>
